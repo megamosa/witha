@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * MagoArab_WithoutEmail extension
+ *
+ * @category  MagoArab
+ * @package   MagoArab_WithoutEmail
+ * @author    MagoArab
+ */
+-->
+<config
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+	<event name="customer_register_success">
+		<observer name="magoarab_withoutemail_customer_register" instance="MagoArab\WithoutEmail\Observer\CustomerRegister" />
+	</event>
+	<event name="customer_login">
+		<observer name="magoarab_withoutemail_customer_login" instance="MagoArab\WithoutEmail\Observer\CustomerLogin" />
+	</event>
+	<event name="sales_order_save_after">
+		<observer name="magoarab_withoutemail_order_status_change" instance="MagoArab\WithoutEmail\Observer\OrderStatusChange" />
+	</event>
+	<event name="view_block_abstract_to_html_after">
+		<observer name="magoarab_withoutemail_add_phone_field_to_customer_form" instance="MagoArab\WithoutEmail\Observer\AddPhoneFieldToCustomerForm" />
+	</event>
+	<event name="email_order_set_template_vars_before">
+		<observer name="magoarab_withoutemail_hide_email_in_order_email" instance="MagoArab\WithoutEmail\Observer\HideEmailInOrderEmail" />
+	</event>
+</config>

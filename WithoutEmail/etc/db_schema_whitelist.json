@@ -1,0 +1,42 @@
+{
+    "sales_order_status_history": {
+        "column": {
+            "is_customer_notified_by_whatsapp": true
+        }
+    },
+    "magoarab_otp_rate_limit": {
+        "column": {
+            "id": true,
+            "phone_number": true,
+            "ip_address": true,
+            "attempt_time": true,
+            "success": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        },
+        "index": {
+            "MAGOARAB_OTP_RATE_LIMIT_PHONE": true,
+            "MAGOARAB_OTP_RATE_LIMIT_IP": true,
+            "MAGOARAB_OTP_RATE_LIMIT_TIME": true
+        }
+    },
+    "magoarab_whatsapp_messages": {
+        "column": {
+            "id": true,
+            "phone_number": true,
+            "provider": true,
+            "message": true,
+            "status": true,
+            "response": true,
+            "created_at": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        },
+        "index": {
+            "MAGOARAB_WHATSAPP_MESSAGES_PHONE": true,
+            "MAGOARAB_WHATSAPP_MESSAGES_STATUS": true
+        }
+    }
+}

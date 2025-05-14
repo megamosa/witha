@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<config
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+	<default>
+		<magoarab_withoutemail>
+			<general>
+				<mode>phone_only</mode>
+			</general>
+			<notifications>
+				<enable_order_notifications>0</enable_order_notifications>
+				<enable_guest_notifications>1</enable_guest_notifications>
+				<notification_language>en</notification_language>
+				<business_name>Your Store</business_name>
+				<support_phone></support_phone>
+				<order_statuses>pending,processing,complete,canceled,holded,shipped,refunded</order_statuses>
+				<template_pending>Hello {{customer_name}}, your order #{{order_id}} has been received. Thank you for shopping with {{business_name}}!</template_pending>
+				<template_processing>Hello {{customer_name}}, your order #{{order_id}} is now being processed.</template_processing>
+				<template_complete>Hello {{customer_name}}, your order #{{order_id}} has been completed. Thank you!</template_complete>
+				<template_canceled>Hello {{customer_name}}, your order #{{order_id}} has been canceled.</template_canceled>
+				<template_holded>Hello {{customer_name}}, your order #{{order_id}} is on hold.</template_holded>
+				<template_shipped>Hello {{customer_name}}, your order #{{order_id}} has been shipped! Tracking: {{tracking_number}}</template_shipped>
+				<template_refunded>Hello {{customer_name}}, your refund for order #{{order_id}} has been processed.</template_refunded>
+			</notifications>
+		</magoarab_withoutemail>
+	</default>
+</config>

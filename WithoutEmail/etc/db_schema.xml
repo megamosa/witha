@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="sales_order_status_history">
+        <column xsi:type="smallint" name="is_customer_notified_by_whatsapp" unsigned="true" nullable="false" default="0" comment="Is Customer Notified By WhatsApp"/>
+    </table>
+    
+    <table name="magoarab_otp_rate_limit" resource="default" engine="innodb" comment="OTP Rate Limiting">
+        <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="ID"/>
+        <column xsi:type="varchar" name="phone_number" nullable="false" length="50" comment="Phone Number"/>
+        <column xsi:type="varchar" name="ip_address" nullable="false" length="50" comment="IP Address"/>
+        <column xsi:type="datetime" name="attempt_time" nullable="false" comment="Attempt Time"/>
+        <column xsi:type="smallint" name="success" unsigned="true" nullable="false" default="1" comment="Success Status"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <index referenceId="MAGOARAB_OTP_RATE_LIMIT_PHONE" indexType="btree">
+            <column name="phone_number"/>
+        </index>
+        <index referenceId="MAGOARAB_OTP_RATE_LIMIT_IP" indexType="btree">
+            <column name="ip_address"/>
+        </index>
+        <index referenceId="MAGOARAB_OTP_RATE_LIMIT_TIME" indexType="btree">
+            <column name="attempt_time"/>
+        </index>
+    </table>
+    
+    <table name="magoarab_whatsapp_messages" resource="default" engine="innodb" comment="WhatsApp Messages Log">
+        <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="ID"/>
+        <column xsi:type="varchar" name="phone_number" nullable="false" length="50" comment="Phone Number"/>
+        <column xsi:type="varchar" name="provider" nullable="false" length="50" comment="Provider Used"/>
+        <column xsi:type="text" name="message" nullable="true" comment="Message Content"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="20" comment="Status"/>
+        <column xsi:type="text" name="response" nullable="true" comment="Provider Response"/>
+        <column xsi:type="datetime" name="created_at" nullable="false" comment="Created At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <index referenceId="MAGOARAB_WHATSAPP_MESSAGES_PHONE" indexType="btree">
+            <column name="phone_number"/>
+        </index>
+        <index referenceId="MAGOARAB_WHATSAPP_MESSAGES_STATUS" indexType="btree">
+            <column name="status"/>
+        </index>
+    </table>
+</schema>

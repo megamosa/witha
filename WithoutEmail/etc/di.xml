@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * MagoArab_WithoutEmail extension
+ *
+ * @category  MagoArab
+ * @package   MagoArab_WithoutEmail
+ * @author    MagoArab
+ */
+-->
+<config
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+	<!-- Plugins to modify customer account functionality -->
+	<type name="Magento\Customer\Model\AccountManagement">
+		<plugin name="magoarab_withoutemail_account_management" type="MagoArab\WithoutEmail\Plugin\Customer\AccountManagement" sortOrder="10" />
+	</type>
+	<type name="Magento\Customer\Model\Session">
+		<plugin name="magoarab_withoutemail_customer_session" type="MagoArab\WithoutEmail\Plugin\Customer\Session" sortOrder="10" />
+	</type>
+	<!-- Preference for phone number validation -->
+	<preference for="MagoArab\WithoutEmail\Api\Data\PhoneNumberInterface" type="MagoArab\WithoutEmail\Model\PhoneNumber" />
+    <preference for="MagoArab\WithoutEmail\Api\SessionInterface" type="MagoArab\WithoutEmail\Model\Session"/>
+	<type name="MagoArab\WithoutEmail\Model\GuestNotificationService">
+    <arguments>
+        <argument name="logger" xsi:type="object">MagoArab\WithoutEmail\Logger\Logger</argument>
+    </arguments>
+</type>
+	<preference for="Magento\Customer\Controller\Account\ForgotPasswordPost" type="MagoArab\WithoutEmail\Controller\Account\ForgotPasswordPost" />
+	<!-- Type definition for Register block -->
+	<type name="MagoArab\WithoutEmail\Block\Form\Register">
+		<arguments>
+			<argument name="configHelper" xsi:type="object">MagoArab\WithoutEmail\Helper\Config</argument>
+		</arguments>
+	</type>
+	<!-- Register Controllers -->
+	<type name="Magento\Framework\App\RouterList">
+		<arguments>
+			<argument name="routerList" xsi:type="array">
+				<item name="magoarab_withoutemail" xsi:type="array">
+					<item name="class" xsi:type="string">Magento\Framework\App\Router\Base</item>
+					<item name="disable" xsi:type="boolean">false</item>
+					<item name="sortOrder" xsi:type="string">10</item>
+				</item>
+			</argument>
+		</arguments>
+	</type>
+	<type name="Magento\Framework\App\Response\Http">
+		<plugin name="magoarab_withoutemail_cors" type="MagoArab\WithoutEmail\Plugin\Response\Http" sortOrder="10" />
+	</type>
+	<type name="Magento\Customer\Controller\Account\EditPost">
+		<plugin name="magoarab_withoutemail_account_edit_post" type="MagoArab\WithoutEmail\Plugin\Customer\AccountManagementEdit" sortOrder="10" />
+	</type>
+	<type name="Magento\Checkout\Block\Checkout\LayoutProcessor">
+		<plugin name="magoarab_withoutemail_checkout_layout_processor" type="MagoArab\WithoutEmail\Plugin\Checkout\LayoutProcessor" sortOrder="10" />
+	</type>
+	<type name="Magento\Checkout\Block\Onepage\Success">
+		<plugin name="magoarab_withoutemail_success_page" type="MagoArab\WithoutEmail\Plugin\Checkout\SuccessPlugin" sortOrder="10" />
+	</type>
+	<!-- Order Grid Collection Plugin -->
+	<type name="Magento\Sales\Model\ResourceModel\Order\Grid\Collection">
+		<plugin name="magoarab_withoutemail_order_grid_collection" type="MagoArab\WithoutEmail\Plugin\Sales\Order\Grid\Collection" sortOrder="10" />
+	</type>
+	<!-- Order Info Plugin -->
+	<type name="Magento\Sales\Block\Adminhtml\Order\View\Info">
+		<plugin name="magoarab_withoutemail_order_info" type="MagoArab\WithoutEmail\Plugin\Sales\Block\Adminhtml\Order\View\Info" sortOrder="10" />
+	</type>
+	<type name="Magento\Sales\Controller\Adminhtml\Order\AddComment">
+		<plugin name="magoarab_withoutemail_add_comment" type="MagoArab\WithoutEmail\Plugin\Sales\Controller\Adminhtml\Order\AddComment" sortOrder="10" />
+	</type>
+	<type name="Magento\Customer\Controller\Account\EditPost">
+    <plugin name="magoarab_withoutemail_customer_edit_post" type="MagoArab\WithoutEmail\Plugin\Customer\Controller\Account\EditPost" sortOrder="10" />
+</type>
+</config>

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="MagoArab_WithoutEmail::root" title="MagoArab" module="MagoArab_WithoutEmail" sortOrder="100" resource="MagoArab_WithoutEmail::root"/>
+        <add id="MagoArab_WithoutEmail::withoutemail" title="Without Email" module="MagoArab_WithoutEmail" sortOrder="10" parent="MagoArab_WithoutEmail::root" resource="MagoArab_WithoutEmail::withoutemail"/>
+        <add id="MagoArab_WithoutEmail::templates" title="WhatsApp Templates" module="MagoArab_WithoutEmail" sortOrder="20" parent="MagoArab_WithoutEmail::withoutemail" action="magoarab_withoutemail/templates" resource="MagoArab_WithoutEmail::templates"/>
+    </menu>
+</config>

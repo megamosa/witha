@@ -1,0 +1,226 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * MagoArab_WithoutEmail extension
+ *
+ * @category  MagoArab
+ * @package   MagoArab_WithoutEmail
+ * @author    MagoArab
+ */
+-->
+<config
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+	<system>
+		<tab id="magoarab" translate="label" sortOrder="100">
+			<label>MagoArab</label>
+		</tab>
+		<section id="magoarab_withoutemail" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>WithoutEmail</label>
+			<tab>magoarab</tab>
+			<resource>MagoArab_WithoutEmail::config</resource>
+			<group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>General Configuration</label>
+				<field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Enable Module</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="mode" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Operation Mode</label>
+					<source_model>MagoArab\WithoutEmail\Model\Config\Source\OperationMode</source_model>
+					<comment>Phone Only: Use only phone numbers. Hybrid Mode: Support both email and phone numbers for existing customers.</comment>
+					<depends>
+						<field id="enabled">1</field>
+					</depends>
+				</field>
+				<field id="min_phone_length" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Minimum Phone Length</label>
+					<validate>validate-number</validate>
+					<comment>Minimum number of digits required for phone number</comment>
+				</field>
+				<field id="max_phone_length" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Maximum Phone Length</label>
+					<validate>validate-number</validate>
+					<comment>Maximum number of digits allowed for phone number</comment>
+				</field>
+			</group>
+			<group id="whatsapp_settings" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>WhatsApp OTP Settings</label>
+				<field id="provider" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>WhatsApp Provider</label>
+					<source_model>MagoArab\WithoutEmail\Model\Config\Source\WhatsappProvider</source_model>
+				</field>
+				<field id="enable_otp" translate="label" type="select" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Enable WhatsApp OTP</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<comment>Enable or disable WhatsApp OTP verification</comment>
+				</field>
+				<field id="ultramsg_api_key" translate="label" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>UltraMsg API Key</label>
+					<backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+					<depends>
+						<field id="provider">ultramsg</field>
+					</depends>
+				</field>
+				<field id="ultramsg_instance_id" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>UltraMsg Instance ID</label>
+					<depends>
+						<field id="provider">ultramsg</field>
+					</depends>
+				</field>
+				<field id="dialog360_api_key" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>360Dialog API Key</label>
+					<backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+					<depends>
+						<field id="provider">dialog360</field>
+					</depends>
+				</field>
+				<field id="dialog360_phone_number_id" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>360Dialog Phone Number ID</label>
+					<depends>
+						<field id="provider">dialog360</field>
+					</depends>
+				</field>
+				<!-- Twilio Settings -->
+				<field id="twilio_account_sid" translate="label" type="text" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Twilio Account SID</label>
+					<depends>
+						<field id="provider">twilio</field>
+					</depends>
+				</field>
+				<field id="twilio_auth_token" translate="label" type="obscure" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Twilio Auth Token</label>
+					<backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+					<depends>
+						<field id="provider">twilio</field>
+					</depends>
+				</field>
+				<field id="twilio_whatsapp_number" translate="label" type="text" sortOrder="220" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Twilio WhatsApp Number</label>
+					<comment>Your Twilio WhatsApp number (with country code)</comment>
+					<depends>
+						<field id="provider">twilio</field>
+					</depends>
+				</field>
+				<!-- WATI Settings -->
+				<field id="wati_api_key" translate="label" type="obscure" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>WATI API Key</label>
+					<backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+					<depends>
+						<field id="provider">wati</field>
+					</depends>
+				</field>
+				<field id="wati_endpoint" translate="label" type="text" sortOrder="310" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>WATI API Endpoint</label>
+					<comment>Your WATI API endpoint URL</comment>
+					<depends>
+						<field id="provider">wati</field>
+					</depends>
+				</field>
+				<!-- Monitoring Settings -->
+				<field id="enable_monitoring" translate="label" type="select" sortOrder="400" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Enable Message Monitoring</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<comment>Monitor and log all WhatsApp messages</comment>
+				</field>
+				<field id="fallback_provider" translate="label" type="select" sortOrder="410" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Fallback Provider</label>
+					<source_model>MagoArab\WithoutEmail\Model\Config\Source\WhatsappProvider</source_model>
+					<comment>Backup provider if primary fails</comment>
+				</field>
+				<field id="otp_length" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>OTP Length</label>
+					<validate>validate-number</validate>
+					<comment>Number of digits in the OTP code</comment>
+				</field>
+				<field id="otp_expiry" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>OTP Expiry (minutes)</label>
+					<validate>validate-number</validate>
+					<comment>Time in minutes before OTP expires</comment>
+				</field>
+				<field id="otp_rate_limit" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Enable OTP Rate Limiting</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<comment>Protect against OTP abuse</comment>
+				</field>
+				<field id="max_otp_per_hour" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Max OTP Requests Per Hour</label>
+					<validate>validate-number validate-greater-than-zero</validate>
+					<comment>Maximum OTP requests allowed per hour for a phone number</comment>
+					<depends>
+						<field id="otp_rate_limit">1</field>
+					</depends>
+				</field>
+				<field id="max_otp_per_day" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Max OTP Requests Per Day</label>
+					<validate>validate-number validate-greater-than-zero</validate>
+					<comment>Maximum OTP requests allowed per day for a phone number</comment>
+					<depends>
+						<field id="otp_rate_limit">1</field>
+					</depends>
+				</field>
+				<field id="otp_cooldown" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>OTP Cooldown Period (seconds)</label>
+					<validate>validate-number validate-greater-than-zero</validate>
+					<comment>Minimum time between OTP requests in seconds</comment>
+					<depends>
+						<field id="otp_rate_limit">1</field>
+					</depends>
+				</field>
+			</group>
+			<group id="notifications" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>WhatsApp Notification Settings</label>
+				<field id="enable_order_notifications" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Enable Order Status Notifications</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="enable_guest_notifications" translate="label" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Enable Notifications for Guest Orders</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+					<comment>Send WhatsApp notifications to guests who placed orders</comment>
+					<depends>
+						<field id="enable_order_notifications">1</field>
+					</depends>
+				</field>
+				<field id="notification_language" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification Language</label>
+					<source_model>MagoArab\WithoutEmail\Model\Config\Source\Language</source_model>
+					<depends>
+						<field id="enable_order_notifications">1</field>
+					</depends>
+				</field>
+				<field id="business_name" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Business Name</label>
+					<comment>Will be used in notifications</comment>
+					<config_path>magoarab_withoutemail/notifications/business_name</config_path>
+					<depends>
+						<field id="enable_order_notifications">1</field>
+					</depends>
+				</field>
+				<field id="support_phone" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Support Phone Number</label>
+					<comment>For customer support</comment>
+					<config_path>magoarab_withoutemail/notifications/support_phone</config_path>
+					<depends>
+						<field id="enable_order_notifications">1</field>
+					</depends>
+				</field>
+				<field id="order_statuses" translate="label" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Enable Notifications for Status</label>
+					<source_model>MagoArab\WithoutEmail\Model\Config\Source\OrderStatus</source_model>
+					<comment>Select which order statuses should trigger WhatsApp notifications</comment>
+					<config_path>magoarab_withoutemail/notifications/order_statuses</config_path>
+					<depends>
+						<field id="enable_order_notifications">1</field>
+					</depends>
+				</field>
+				<field id="template_helper" translate="label" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>WhatsApp Message Templates</label>
+					<frontend_model>MagoArab\WithoutEmail\Block\Adminhtml\System\Config\Templates</frontend_model>
+					<depends>
+						<field id="enable_order_notifications">1</field>
+					</depends>
+				</field>
+			</group>
+		</section>
+	</system>
+</config>
