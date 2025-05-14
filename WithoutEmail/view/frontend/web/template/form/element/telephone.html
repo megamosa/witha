@@ -1,0 +1,28 @@
+<input class="input-text phone-input" type="tel"
+       data-bind="
+        value: value,
+        valueUpdate: 'keyup',
+        hasFocus: focused,
+        attr: {
+            name: inputName,
+            placeholder: placeholder,
+            'aria-describedby': getDescriptionId(),
+            'aria-required': required,
+            'aria-invalid': error() ? true : 'false',
+            id: uid,
+            disabled: disabled
+        },
+        event: {
+            change: function() {
+                formatPhoneNumber();
+            },
+            blur: function() {
+                formatPhoneNumber();
+            }
+        }
+        " />
+<!-- ko if: error() -->
+<div class="field-error" data-bind="attr: { id: errorId }">
+    <span data-bind="text: error"></span>
+</div>
+<!-- /ko -->

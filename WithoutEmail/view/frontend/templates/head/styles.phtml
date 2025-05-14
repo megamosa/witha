@@ -1,0 +1,57 @@
+<?php
+/**
+ * MagoArab_WithoutEmail extension
+ *
+ * @category  MagoArab
+ * @package   MagoArab_WithoutEmail
+ * @author    MagoArab
+ */
+?>
+<style>
+/* Phone number field highlight */
+.phone-field-highlight .control input {
+    font-weight: bold;
+    font-size: 1.1em;
+    border-color: #1979c3;
+    background-color: #f8f8f8;
+}
+
+.phone-field-highlight .label {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #1979c3;
+}
+
+/* OTP button styles */
+button#send_otp,
+button#verify_otp {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+button#verify_otp.verified {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+
+/* Disabled submit button */
+button#submit_button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* OTP input field styling */
+.field.otp {
+    margin-top: 20px;
+}
+
+/* Phone verification section */
+#otp_section,
+#otp_verify_section {
+    transition: all 0.3s ease;
+}
+input[type="email"],
+input[name="email"] {
+  
+}
+</style>

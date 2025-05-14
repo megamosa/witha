@@ -1,0 +1,128 @@
+/* Phone number field highlight */
+.phone-field-highlight .control input {
+    font-weight: bold;
+    font-size: 1.1em;
+    border-color: #1979c3;
+    background-color: #f8f8f8;
+}
+
+.phone-field-highlight .label {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #1979c3;
+}
+
+/* OTP button styles */
+button#send_otp,
+button#verify_otp {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+button#verify_otp.verified {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+
+/* Disabled submit button */
+button#submit_button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+/* Phone number field highlight */
+.phone-field-highlight .control input {
+    font-weight: bold;
+    font-size: 1.1em;
+    border-color: #1979c3;
+    background-color: #f8f8f8;
+}
+
+.phone-field-highlight .label {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #1979c3;
+}
+
+/* OTP button styles */
+button#send_otp,
+button#verify_otp {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+button#verify_otp.verified {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+
+/* Disabled submit button */
+button#submit_button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* OTP input field styling */
+.field.otp {
+    margin-top: 20px;
+}
+
+/* Phone verification section */
+#otp_section,
+#otp_verify_section {
+    transition: all 0.3s ease;
+}
+
+/* Readonly phone number field */
+input[readonly] {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+/* International Phone Input Styling */
+.intl-tel-input {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.intl-tel-input .iti__flag-container {
+    display: flex;
+    align-items: center;
+}
+
+.intl-tel-input .iti__selected-flag {
+    padding: 0 6px 0 8px;
+    display: flex;
+    align-items: center;
+}
+
+.intl-tel-input input.phone-input {
+    font-weight: bold;
+    font-size: 1.1em;
+    border-color: #1979c3;
+    background-color: #f8f8f8;
+    padding-left: 90px !important;
+}
+
+.phone-error-message {
+    color: #e02b27;
+    font-size: 12px;
+    margin-top: 7px;
+}
+
+.intl-tel-input .iti__country-list {
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.intl-tel-input .iti__country {
+    padding: 8px 10px;
+}
+
+.intl-tel-input .iti__country-name {
+    margin-left: 6px;
+}
+.iti__flag {background-image: url("../img/flags.png") !important;}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .iti__flag {background-image: url("../img/flags@2x.png") !important;}
+}

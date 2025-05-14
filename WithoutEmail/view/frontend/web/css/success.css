@@ -1,0 +1,13 @@
+.phone-tracking-message {
+    font-size: 1.1em;
+    margin: 15px 0;
+    padding: 10px 15px;
+    background-color: #f8f8f8;
+    border-left: 3px solid #1979c3;
+    color: #333;
+}
+
+.phone-tracking-message strong {
+    color: #1979c3;
+    font-weight: bold;
+}

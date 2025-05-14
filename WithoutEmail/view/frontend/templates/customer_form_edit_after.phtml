@@ -1,0 +1,35 @@
+<?php
+// Get Config Helper from ObjectManager
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$configHelper = $objectManager->get(\MagoArab\WithoutEmail\Helper\Config::class);
+$isEnabled = $configHelper->isEnabled();
+if (!$isEnabled) return;
+
+$minPhoneLength = $configHelper->getMinPhoneLength();
+$maxPhoneLength = $configHelper->getMaxPhoneLength();
+$customer = $block->getCustomer();
+$phoneNumber = '';
+if ($customer->getCustomAttribute('phone_number')) {
+    $phoneNumber = $customer->getCustomAttribute('phone_number')->getValue();
+}
+?>
+
+<script>
+require(['jquery', 'domReady!'], function($) {
+    // إضافة حقل الهاتف بعد الاسم الأول مباشرة
+    var firstNameField = $('.fieldset.info .field.firstname');
+    if (firstNameField.length) {
+        var phoneField = $('<div class="field phone required phone-field-highlight">' +
+            '<label class="label" for="phone_number"><span><?= __('Phone Number') ?></span></label>' +
+            '<div class="control">' +
+            '<input type="tel" name="phone_number" id="phone_number" value="<?= $phoneNumber ?>" ' +
+            'title="<?= __('Phone Number') ?>" ' +
+            'class="input-text" ' +
+            'data-validate="{required:true, \'validate-number\':true, minlength:<?= $minPhoneLength ?>, maxlength:<?= $maxPhoneLength ?>}">' +
+            '</div>' +
+            '</div>');
+        
+        phoneField.insertBefore(firstNameField);
+    }
+});
+</script>

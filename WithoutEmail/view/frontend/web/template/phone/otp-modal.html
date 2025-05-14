@@ -1,0 +1,30 @@
+<!-- 
+/**
+ * MagoArab_WithoutEmail extension
+ *
+ * @category  MagoArab
+ * @package   MagoArab_WithoutEmail
+ * @author    MagoArab
+ */
+-->
+<div class="otp-verification-modal">
+    <div class="modal-header">
+        <h1 data-bind="i18n: 'Phone Verification'"></h1>
+    </div>
+    <div class="modal-content">
+        <p data-bind="i18n: 'Please enter the OTP code sent to your WhatsApp:'"></p>
+        <div class="otp-input-container">
+            <!-- ko foreach: new Array(otpLength) -->
+            <input type="text" class="otp-input" maxlength="1" data-bind="attr: { 'data-index': $index() }">
+            <!-- /ko -->
+        </div>
+        <div class="otp-message" data-bind="html: otpMessage, css: messageClass"></div>
+    </div>
+    <div class="modal-footer">
+        <button class="action secondary" data-bind="click: cancel, i18n: 'Cancel'"></button>
+        <button class="action primary" data-bind="click: verify, i18n: 'Verify'"></button>
+        <div class="resend-container">
+            <button class="action link" data-bind="click: resend, i18n: resendText, enable: canResend"></button>
+        </div>
+    </div>
+</div>

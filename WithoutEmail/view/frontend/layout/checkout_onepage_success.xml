@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="MagoArab_WithoutEmail::css/success.css"/>
+    </head>
+    <body>
+        <referenceBlock name="checkout.success">
+            <action method="setTemplate">
+                <argument name="template" xsi:type="string">MagoArab_WithoutEmail::checkout/success.phtml</argument>
+            </action>
+        </referenceBlock>
+        
+        <referenceContainer name="content">
+            <block class="Magento\Framework\View\Element\Template" 
+                   name="magoarab_success_page_modifier" 
+                   template="MagoArab_WithoutEmail::success_page_modifier.phtml" 
+                   after="-" />
+        </referenceContainer>
+        
+        <!-- Override registration block -->
+        <referenceBlock name="checkout.registration">
+            <action method="setTemplate">
+                <argument name="template" xsi:type="string">MagoArab_WithoutEmail::checkout/registration.phtml</argument>
+            </action>
+        </referenceBlock>
+    </body>
+</page>

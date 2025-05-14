@@ -1,0 +1,148 @@
+<?php
+/**
+ * @var \Magento\Sales\Block\Adminhtml\Order\View\History $block
+ */
+?>
+<div id="order_history_block">
+    <?= $block->getChildHtml('order_messages') ?>
+    <div id="history_form" action="<?= $block->escapeUrl($block->getSubmitUrl()) ?>">
+        <input name="form_key" type="hidden" value="<?= $block->getFormKey() ?>" />
+        <div class="admin__data-grid-wrap admin__data-grid-wrap-static">
+            <table class="admin__table-secondary order-information-table">
+                <tbody>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Notes for this Order')) ?></th>
+                    </tr>
+                    <tr>
+                        <td class="col-actions">
+                            <div class="admin__field">
+                                <label for="history_status" class="admin__field-label">
+                                    <?= $block->escapeHtml(__('Status')) ?>
+                                </label>
+                                <div class="admin__field-control">
+                                    <select name="history[status]" id="history_status" class="admin__control-select">
+                                        <?php foreach ($block->getStatuses() as $_code => $_label): ?>
+                                            <option value="<?= $block->escapeHtmlAttr($_code) ?>"<?php if ($_code == $block->getOrder()->getStatus()): ?> selected="selected"<?php endif; ?>><?= $block->escapeHtml($_label) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="admin__field">
+                                <label for="history_comment" class="admin__field-label">
+                                    <?= $block->escapeHtml(__('Comment')) ?>
+                                </label>
+                                <div class="admin__field-control">
+                                    <textarea name="history[comment]" rows="3" cols="5" class="admin__control-textarea" id="history_comment"></textarea>
+                                </div>
+                            </div>
+                            <?php if ($block->canSendCommentEmail()): ?>
+                                <div class="admin__field admin__field-option">
+                                    <input name="history[is_customer_notified]" type="checkbox" id="history_notify" value="1" class="admin__control-checkbox" />
+                                    <label for="history_notify" class="admin__field-label"><?= $block->escapeHtml(__('Notify Customer by Email')) ?></label>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <div class="admin__field admin__field-option">
+                                <input name="history[is_customer_notified_by_whatsapp]" type="checkbox" id="history_notify_whatsapp" value="1" class="admin__control-checkbox" />
+                                <label for="history_notify_whatsapp" class="admin__field-label"><?= $block->escapeHtml(__('Notify Customer by WhatsApp')) ?></label>
+                            </div>
+                            
+                            <div class="admin__field admin__field-option">
+                                <input name="history[is_visible_on_front]" type="checkbox" id="history_visible" value="1" class="admin__control-checkbox" />
+                                <label for="history_visible" class="admin__field-label"><?= $block->escapeHtml(__('Visible on Storefront')) ?></label>
+                            </div>
+                            
+                            <div class="actions">
+                                <button class="action-default action-save action-secondary" id="submit_comment_button" onclick="submitComment(); return false;">
+                                    <span><?= $block->escapeHtml(__('Submit Comment')) ?></span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="admin__data-grid-wrap admin__data-grid-wrap-static">
+            <table class="data-table admin__table-secondary order-comments-history">
+                <thead>
+                    <tr class="headings">
+                        <th><?= $block->escapeHtml(__('Date')) ?></th>
+                        <th><?= $block->escapeHtml(__('Status')) ?></th>
+                        <th><?= $block->escapeHtml(__('Comment')) ?></th>
+                        <th><?= $block->escapeHtml(__('Notified')) ?></th>
+                        <th><?= $block->escapeHtml(__('WhatsApp')) ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($block->getOrder()->getStatusHistoryCollection(true) as $_item): ?>
+                        <tr>
+                            <td class="col-date"><?= $block->escapeHtml($block->formatDate($_item->getCreatedAt(), \IntlDateFormatter::MEDIUM, true)) ?></td>
+                            <td class="col-status"><?= $block->escapeHtml($_item->getStatusLabel()) ?></td>
+                            <td class="col-comment"><?= $block->escapeHtml($_item->getComment()) ?></td>
+                            <td class="col-notified"><?= $_item->getIsCustomerNotified() ? __('Yes') : __('No') ?></td>
+                            <td class="col-whatsapp"><?= $_item->getIsCustomerNotifiedByWhatsapp() ? __('Yes') : __('No') ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function submitComment() {
+    if ($('history_comment').value == '') {
+        alert('<?= $block->escapeJs(__('Please enter a comment.')) ?>');
+        return false;
+    }
+    
+    var data = {};
+    data['form_key'] = FORM_KEY;
+    data['history[status]'] = $('history_status').value;
+    data['history[comment]'] = $('history_comment').value;
+    
+    if ($('history_notify') && $('history_notify').checked) {
+        data['history[is_customer_notified]'] = 1;
+    }
+    
+    if ($('history_notify_whatsapp') && $('history_notify_whatsapp').checked) {
+        data['history[is_customer_notified_by_whatsapp]'] = 1;
+    }
+    
+    if ($('history_visible') && $('history_visible').checked) {
+        data['history[is_visible_on_front]'] = 1;
+    }
+    
+    new Ajax.Request('<?= $block->escapeJs($block->escapeUrl($block->getSubmitUrl())) ?>', {
+        method: 'post',
+        parameters: data,
+        onComplete: function(transport) {
+            try {
+                if (transport.responseText.isJSON()) {
+                    var response = transport.responseText.evalJSON();
+                    if (response.error) {
+                        alert(response.message);
+                    }
+                    if (response.ajaxExpired && response.ajaxRedirect) {
+                        setLocation(response.ajaxRedirect);
+                    }
+                } else {
+                    $('order_history_block').update(transport.responseText);
+                }
+            } catch (e) {
+                $('order_history_block').update(transport.responseText);
+            }
+        }
+    });
+    
+    return false;
+}
+</script>
+<style>
+.admin__field:not(.admin__field-option) ~ .admin__field-option {
+  
+    direction: ltr;
+    text-align: left;
+}
+</style>

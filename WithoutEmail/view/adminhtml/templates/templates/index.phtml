@@ -1,0 +1,141 @@
+<?php
+/** @var \MagoArab\WithoutEmail\Block\Adminhtml\Templates $block */
+$placeholders = $block->getPlaceholders();
+$defaultTemplates = $block->getDefaultTemplates();
+?>
+<div class="whatsapp-templates-container">
+    <style>
+        .whatsapp-templates-container {
+            margin: 20px 0;
+        }
+        .template-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .template-preview {
+            background: #f8f8f8;
+            padding: 15px;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+            min-height: 50px;
+            direction: rtl;
+            border-radius: 4px;
+        }
+        .placeholders-section {
+            background: #f5f5f5;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+        .placeholder-item {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 12px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .template-textarea {
+            width: 100%;
+            min-height: 100px;
+            margin-top: 10px;
+            direction: rtl;
+            padding: 10px;
+            font-size: 14px;
+        }
+        .page-title {
+            margin-bottom: 30px;
+        }
+        .preview-title {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+
+    <form id="templates-form" method="post" action="<?= $block->getFormAction() ?>">
+        <input name="form_key" type="hidden" value="<?= $block->getFormKey() ?>" />
+        
+        <div class="page-title">
+            <h1><?= __('WhatsApp Notification Templates') ?></h1>
+        </div>
+        
+        <div class="placeholders-section">
+            <h3><?= __('Available Placeholders') ?></h3>
+            <p><?= __('Click to copy to clipboard:') ?></p>
+            <?php foreach ($placeholders as $placeholder => $description): ?>
+                <span class="placeholder-item" onclick="copyToClipboard('<?= $placeholder ?>')" title="<?= $description ?>">
+                    <?= $placeholder ?>
+                </span>
+            <?php endforeach; ?>
+        </div>
+        
+        <?php foreach ($defaultTemplates as $status => $template): ?>
+            <div class="template-section">
+                <h3><?= __('Status: %1', ucfirst($status)) ?></h3>
+                <div class="field">
+                    <label><?= __('Message Template') ?></label>
+                    <textarea 
+                        class="template-textarea" 
+                        id="template_<?= $status ?>" 
+                        name="templates[<?= $status ?>]"
+                        onkeyup="updatePreview('<?= $status ?>')"
+                    ><?= $block->getTemplateValue($status) ?></textarea>
+                </div>
+                <div class="field">
+                    <div class="preview-title"><?= __('Preview:') ?></div>
+                    <div class="template-preview" id="preview_<?= $status ?>"></div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+        
+        <div class="actions">
+            <button class="action-primary" type="submit">
+                <span><?= __('Save Templates') ?></span>
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        alert('<?= __('Placeholder copied to clipboard!') ?>');
+    });
+}
+
+function updatePreview(status) {
+    var template = document.getElementById('template_' + status).value;
+    var preview = document.getElementById('preview_' + status);
+    
+    // Replace placeholders with sample data
+    var sampleData = {
+        '{{order_id}}': '000000123',
+        '{{customer_name}}': 'John Doe',
+        '{{order_total}}': '$150.00',
+        '{{tracking_number}}': '1234567890',
+        '{{business_name}}': 'Your Store',
+        '{{support_phone}}': '+1234567890',
+        '{{order_date}}': '<?= date('M d, Y') ?>',
+        '{{delivery_date}}': '<?= date('M d, Y', strtotime('+3 days')) ?>',
+        '{{payment_method}}': 'Credit Card',
+        '{{shipping_method}}': 'Standard Shipping',
+        '{{order_status}}': status.charAt(0).toUpperCase() + status.slice(1),
+        '{{order_link}}': 'https://yourstore.com/order/123'
+    };
+    
+    var previewText = template;
+    for (var placeholder in sampleData) {
+        previewText = previewText.replace(new RegExp(placeholder, 'g'), sampleData[placeholder]);
+    }
+    
+    preview.innerHTML = previewText;
+}
+
+// Initialize previews
+document.addEventListener('DOMContentLoaded', function() {
+    <?php foreach ($defaultTemplates as $status => $template): ?>
+        updatePreview('<?= $status ?>');
+    <?php endforeach; ?>
+});
+</script>

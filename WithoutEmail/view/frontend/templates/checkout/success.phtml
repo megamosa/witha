@@ -1,0 +1,42 @@
+<?php
+/**
+ * @var $block \Magento\Checkout\Block\Onepage\Success
+ */
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$configHelper = $objectManager->get(\MagoArab\WithoutEmail\Helper\Config::class);
+$isHybridMode = $configHelper->isHybridMode();
+?>
+<div class="checkout-success">
+    <?php if ($block->getOrderId()):?>
+        <?php if ($block->getCanViewOrder()) :?>
+            <p><?= __('Your order number is: %1.', sprintf('<a href="%s" class="order-number"><strong>%s</strong></a>', $block->escapeHtml($block->getViewOrderUrl()), $block->escapeHtml($block->getOrderId()))) ?></p>
+        <?php else :?>
+            <p><?= __('Your order # is: <span>%1</span>.', $block->escapeHtml($block->getOrderId())) ?></p>
+        <?php endif;?>
+            <p><?= __('We\'ll send you an order confirmation with details and tracking info via WhatsApp.') ?></p>
+    <?php endif;?>
+
+    <?php if ($block->getOrder()): ?>
+        <?php $order = $block->getOrder(); ?>
+        <?php $phoneNumber = $order->getShippingAddress() ? $order->getShippingAddress()->getTelephone() : ($order->getBillingAddress() ? $order->getBillingAddress()->getTelephone() : ''); ?>
+        <?php if ($phoneNumber): ?>
+            <div class="phone-tracking-info">
+                <p><?= __('You can track your order using your phone number: <strong>%1</strong>', $block->escapeHtml($phoneNumber)) ?></p>
+            </div>
+        <?php endif; ?>
+        
+        <?php if ($isHybridMode && $order->getCustomerEmail() && strpos($order->getCustomerEmail(), '@') !== false): ?>
+            <div class="email-info">
+                <p><?= __('Order confirmation details have also been sent to: <strong>%1</strong>', $block->escapeHtml($order->getCustomerEmail())) ?></p>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <?= $block->getAdditionalInfoHtml() ?>
+
+    <div class="actions-toolbar">
+        <div class="primary">
+            <a class="action primary continue" href="<?= $block->escapeUrl($block->getContinueUrl()) ?>"><span><?= __('Continue Shopping') ?></span></a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,118 @@
+<script>
+require(['jquery', 'domReady!'], function($) {
+    'use strict';
+    
+    // تحديد وقت انتظار قبل محاولة التنفيذ
+    setTimeout(function() {
+        // 1. البحث عن حقل البريد الإلكتروني واخفائه
+        function setupEmailField() {
+            var emailWrapper = $('[name="shippingAddress.email"]');
+            if (emailWrapper.length) {
+                // إخفاء حقل البريد الإلكتروني (والتأكد من عدم الكشف عنه لاحقاً)
+                emailWrapper.css({'display': 'none', 'visibility': 'hidden', 'height': '0', 'width': '0', 'overflow': 'hidden', 'margin': '0', 'padding': '0'});
+                
+                // للتأكد من أنه لن يظهر مرة أخرى
+                emailWrapper.attr('data-email-hidden', 'true');
+                
+                console.log('Email field hidden successfully');
+                return true;
+            }
+            return false;
+        }
+        
+        // 2. إعداد تعبئة البريد الإلكتروني تلقائياً عند تغيير الهاتف
+        function setupPhoneEvents() {
+            var phoneInput = $('input[name="telephone"]');
+            if (phoneInput.length) {
+                // إزالة أي أحداث سابقة
+                phoneInput.off('input.emailgen change.emailgen');
+                
+                // إضافة حدث جديد
+                phoneInput.on('input.emailgen change.emailgen', function() {
+                    var phoneNumber = $(this).val();
+                    if (phoneNumber) {
+                        var domain = window.location.hostname;
+                        var email = phoneNumber + '@' + domain;
+                        
+                        // البحث عن حقل البريد الإلكتروني في كل مكان محتمل
+                        var emailField = $('input[name$=".email"], input[name="email"]');
+                        if (emailField.length) {
+                            // تعيين القيمة مباشرة
+                            emailField.val(email);
+                            
+                            // إطلاق أحداث التغيير للتأكد من تحديث النماذج
+                            emailField.trigger('change');
+                            emailField.trigger('input');
+                            emailField.trigger('blur');
+                            
+                            console.log('Email field updated: ' + email);
+                        }
+                    }
+                });
+                
+                // إطلاق الحدث مباشرة للتأكد من تعبئة البريد إذا كان الهاتف موجوداً بالفعل
+                phoneInput.trigger('change.emailgen');
+                
+                console.log('Phone events setup complete');
+                return true;
+            }
+            return false;
+        }
+        
+        // 3. وظيفة مراقبة لجميع التغييرات في الصفحة
+        function setupMutationObserver() {
+            // إعداد MutationObserver لمراقبة التغييرات في DOM
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                        // التحقق من إخفاء البريد وإعداد أحداث الهاتف
+                        setupEmailField();
+                        setupPhoneEvents();
+                        
+                        // التحقق من عدم عرض رسائل التحقق الخاصة بالبريد
+                        $('[data-email-hidden="true"] .field-error').hide();
+                    }
+                });
+            });
+            
+            // بدء المراقبة على كل الصفحة
+            observer.observe(document.body, { childList: true, subtree: true });
+            
+            console.log('Mutation observer setup complete');
+        }
+        
+        // 4. دالة التنفيذ الرئيسية
+        function initEmailPhone() {
+            // محاولة الإعداد الأولي
+            var emailHidden = setupEmailField();
+            var phoneSetup = setupPhoneEvents();
+            
+            // إعداد المراقب لمتابعة التغييرات
+            setupMutationObserver();
+            
+            // للتأكد من تنفيذ الإعداد لاحقاً إذا لم ينجح الآن
+            if (!emailHidden || !phoneSetup) {
+                var checkInterval = setInterval(function() {
+                    var success = setupEmailField() && setupPhoneEvents();
+                    if (success) {
+                        clearInterval(checkInterval);
+                        console.log('Delayed setup completed successfully');
+                    }
+                }, 500);
+                
+                // إيقاف المحاولة بعد 10 ثوانٍ
+                setTimeout(function() {
+                    clearInterval(checkInterval);
+                }, 10000);
+            }
+        }
+        
+        // بدء التنفيذ
+        initEmailPhone();
+        
+        // دعم للواجهات التي تستخدم AJAX
+        $(document).on('contentUpdated', initEmailPhone);
+        
+    }, 500); // انتظار نصف ثانية قبل البدء
+});
+</script>

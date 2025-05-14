@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * MagoArab_WithoutEmail extension
+ *
+ * @category  MagoArab
+ * @package   MagoArab_WithoutEmail
+ * @author    MagoArab
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="customer_account_dashboard_info">
+            <block class="MagoArab\WithoutEmail\Block\Account\Dashboard\PhoneInfo" name="customer_dashboard_phone_info" template="MagoArab_WithoutEmail::account/dashboard/phone_info.phtml" ifconfig="magoarab_withoutemail/general/enabled" before="-" />
+			    <action method="setTemplate">
+                <argument name="template" xsi:type="string">MagoArab_WithoutEmail::account/dashboard/info.phtml</argument>
+            </action>
+        </referenceBlock>
+    </body>
+</page>

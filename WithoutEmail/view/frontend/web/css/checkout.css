@@ -1,0 +1,35 @@
+/* إخفاء حقل البريد الإلكتروني بطريقة تحافظ على الوظيفة */
+#customer-email-fieldset .field.required > .label,
+#customer-email-fieldset .field-tooltip,
+#customer-email-fieldset .note {
+    display: none !important;
+}
+
+#customer-email-fieldset .field.required {
+    position: absolute;
+    opacity: 0;
+    height: 1px;
+    width: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    z-index: -1;
+}
+
+/* قم بتحسين ظهور حقل الهاتف ليكون أكثر وضوحًا */
+.telephone .control input,
+input[name="telephone"] {
+    font-weight: bold;
+    font-size: 1.1em;
+    border-color: #1979c3;
+    background-color: #f8f8f8;
+}
+
+.telephone .label,
+[name="shippingAddress.telephone"] label {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #1979c3;
+}

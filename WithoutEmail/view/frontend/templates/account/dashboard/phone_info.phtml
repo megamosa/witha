@@ -1,0 +1,28 @@
+<?php
+/**
+ * MagoArab_WithoutEmail extension
+ *
+ * @category  MagoArab
+ * @package   MagoArab_WithoutEmail
+ * @author    MagoArab
+ */
+?>
+<?php
+/** @var \MagoArab\WithoutEmail\Block\Account\Dashboard\PhoneInfo $block */
+$phoneNumber = $block->getPhoneNumber();
+?>
+<div class="block block-dashboard-phone">
+    <div class="block-title">
+        <strong><?= $block->escapeHtml(__('Contact Information')) ?></strong>
+    </div>
+    <div class="block-content">
+        <p>
+            <strong><?= $block->escapeHtml(__('Phone Number:')) ?></strong> <?= $block->escapeHtml($phoneNumber) ?>
+        </p>
+        <div class="actions">
+            <a class="action edit" href="<?= $block->escapeUrl($block->getUrl('customer/account/edit')) ?>">
+                <span><?= $block->escapeHtml(__('Edit')) ?></span>
+            </a>
+        </div>
+    </div>
+</div>

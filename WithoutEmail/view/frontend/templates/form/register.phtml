@@ -1,0 +1,654 @@
+<?php
+/**
+ * MagoArab_WithoutEmail extension
+ *
+ * @category  MagoArab
+ * @package   MagoArab_WithoutEmail
+ * @author    MagoArab
+ */
+
+/** @var \MagoArab\WithoutEmail\Block\Form\Register $block */
+
+// Inicialización y configuración
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$configHelper = $objectManager->get(\MagoArab\WithoutEmail\Helper\Config::class);
+$isHybridMode = $configHelper->isHybridMode();
+
+// Obtener información de países
+$directoryHelper = $objectManager->get(\Magento\Directory\Helper\Data::class);
+$storeManager = $objectManager->get(\Magento\Store\Model\StoreManagerInterface::class);
+$scopeConfig = $objectManager->get(\Magento\Framework\App\Config\ScopeConfigInterface::class);
+
+// Obtener países permitidos
+$allowedCountries = $directoryHelper->getCountryCollection()->getAllIds();
+
+// Obtener país predeterminado de la configuración
+$defaultCountry = $scopeConfig->getValue(
+    'general/country/default',
+    \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+    $storeManager->getStore()->getId()
+) ?: 'EG';
+
+// Definir países preferidos con el predeterminado primero
+$preferredCountries = [$defaultCountry, 'US', 'GB', 'SA', 'AE'];
+
+// Obtener configuración OTP si está disponible
+$viewModel = $block->getData('phone_config');
+?>
+<div class="block block-customer-register">
+    <div class="block-title">
+        <strong id="block-customer-login-heading" role="heading" aria-level="2"><?= $block->escapeHtml(__('Create New Customer Account')) ?></strong>
+    </div>
+    <div class="block-content" aria-labelledby="block-customer-login-heading">
+        <form class="form create account form-create-account"
+              action="<?= $block->escapeUrl($block->getPostActionUrl()) ?>"
+              method="post"
+              id="form-validate"
+              enctype="multipart/form-data"
+              autocomplete="off">
+            <?= $block->getBlockHtml('formkey') ?>
+            <fieldset class="fieldset create info">
+                <legend class="legend"><span><?= $block->escapeHtml(__('Personal Information')) ?></span></legend><br>
+				<?php /* Selector de método de registro para modo híbrido */ ?>
+                <?php if ($isHybridMode): ?>
+                <div class="field choice registration-method">
+                    <input type="radio" name="registration_method" id="method_phone" value="phone" checked="checked" />
+                    <label for="method_phone"><?= $block->escapeHtml(__('Register with Phone Number')) ?></label>
+                    
+                    <input type="radio" name="registration_method" id="method_email" value="email" style="margin-left: 15px;" />
+                    <label for="method_email"><?= $block->escapeHtml(__('Register with Email')) ?></label>
+                </div>
+                <?php endif; ?>
+
+                <?php /* Campo de teléfono */ ?>
+                <div class="field phone required phone-field-highlight" id="phone_field">
+                    <label for="phone_number" class="label"><span><?= $block->escapeHtml(__('Phone Number')) ?></span></label>
+                    <div class="control">
+                        <div class="intl-tel-input">
+                            <input type="tel" name="phone_number" id="phone_number"
+                                title="<?= $block->escapeHtmlAttr(__('Phone Number')) ?>"
+                                class="input-text phone-input"
+                                data-validate="{required:true}"
+                                autocomplete="off">
+                        </div>
+                        <div class="note"><?= $block->escapeHtml(__('This will be used as your login identifier')) ?></div>
+                    </div>
+                </div>
+
+                <?php /* Campo de email (solo para modo híbrido) */ ?>
+                <?php if ($isHybridMode): ?>
+                <div class="field email required" id="email_field" style="display: none;">
+                    <label for="email" class="label"><span><?= $block->escapeHtml(__('Email Address')) ?></span></label>
+                    <div class="control">
+                        <input type="email" name="email" id="email"
+                               title="<?= $block->escapeHtmlAttr(__('Email Address')) ?>"
+                               class="input-text"
+                               data-validate="{required:true, 'validate-email':true}"
+                               autocomplete="off">
+                        <div class="note"><?= $block->escapeHtml(__('This will be used as your login identifier')) ?></div>
+                    </div>
+                </div>
+                <?php endif; ?>
+				<?php /* Campos de nombre y apellido */ ?>
+                <div class="field firstname required">
+                    <label class="label" for="firstname"><span><?= $block->escapeHtml(__('First Name')) ?></span></label>
+                    <div class="control">
+                        <input type="text" id="firstname" name="firstname" value="<?= $block->escapeHtmlAttr($block->getFormData()->getFirstname()) ?>" title="<?= $block->escapeHtmlAttr(__('First Name')) ?>" class="input-text required-entry" data-validate="{required:true}">
+                    </div>
+                </div>
+                <div class="field lastname required">
+                    <label class="label" for="lastname"><span><?= $block->escapeHtml(__('Last Name')) ?></span></label>
+                    <div class="control">
+                        <input type="text" id="lastname" name="lastname" value="<?= $block->escapeHtmlAttr($block->getFormData()->getLastname()) ?>" title="<?= $block->escapeHtmlAttr(__('Last Name')) ?>" class="input-text required-entry" data-validate="{required:true}">
+                    </div>
+                </div>
+                
+                <?php /* Newsletter checkbox */ ?>
+                <?php if ($block->isNewsletterEnabled()): ?>
+                    <div class="field choice newsletter">
+                        <input type="checkbox" name="is_subscribed" title="<?= $block->escapeHtmlAttr(__('Sign Up for Newsletter')) ?>" value="1" id="is_subscribed" <?= $block->getFormData()->getIsSubscribed() ? 'checked="checked"' : '' ?> class="checkbox">
+                        <label for="is_subscribed" class="label"><span><?= $block->escapeHtml(__('Sign Up for Newsletter')) ?></span></label>
+                    </div>
+                <?php endif ?>
+            </fieldset>
+			<fieldset class="fieldset create account" data-hasrequired="<?= $block->escapeHtmlAttr(__('* Required Fields')) ?>">
+                <legend class="legend"><span><?= $block->escapeHtml(__('Sign-in Information')) ?></span></legend><br>
+                
+                <?php /* Campos de contraseña */ ?>
+                <div class="field password required">
+                    <label for="password" class="label"><span><?= $block->escapeHtml(__('Password')) ?></span></label>
+                    <div class="control">
+                        <input type="password" name="password" id="password"
+                               title="<?= $block->escapeHtmlAttr(__('Password')) ?>"
+                               class="input-text"
+                               data-password-min-length="<?= $block->escapeHtml($block->getMinimumPasswordLength()) ?>"
+                               data-password-min-character-sets="<?= $block->escapeHtml($block->getRequiredCharacterClassesNumber()) ?>"
+                               data-validate="{required:true, 'validate-customer-password':true}"
+                               autocomplete="off">
+                        <div id="password-strength-meter-container" data-role="password-strength-meter" aria-live="polite">
+                            <div id="password-strength-meter" class="password-strength-meter"><?= $block->escapeHtml(__('Password Strength')) ?>:
+                                <span id="password-strength-meter-label" data-role="password-strength-meter-label"><?= $block->escapeHtml(__('No Password')) ?></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field confirmation required">
+                    <label for="password-confirmation" class="label"><span><?= $block->escapeHtml(__('Confirm Password')) ?></span></label>
+                    <div class="control">
+                        <input type="password" name="password_confirmation" title="<?= $block->escapeHtmlAttr(__('Confirm Password')) ?>" id="password-confirmation" class="input-text" data-validate="{required:true, equalTo:'#password'}" autocomplete="off">
+                    </div>
+                </div>
+				<?php /* Campos de OTP si está habilitado */ ?>
+                <?php if ($viewModel && $viewModel->isOtpEnabled()): ?>
+                    <div class="field otp">
+                        <div class="control">
+                            <button type="button" id="send_otp" class="action primary">
+                                <span><?= $block->escapeHtml(__('Get OTP via WhatsApp')) ?></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="field otp required" style="display: none;" id="otp_section">
+                        <label for="otp_code" class="label"><span><?= $block->escapeHtml(__('Enter OTP Code')) ?></span></label>
+                        <div class="control">
+                            <input type="text" name="otp_code" id="otp_code"
+                                   title="<?= $block->escapeHtmlAttr(__('OTP Code')) ?>"
+                                   class="input-text"
+                                   data-validate="{required:true, 'validate-number':true}"
+                                   autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="field otp-verify" style="display: none;" id="otp_verify_section">
+                        <div class="control">
+                            <button type="button" id="verify_otp" class="action primary">
+                                <span><?= $block->escapeHtml(__('Verify OTP')) ?></span>
+                            </button>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </fieldset>
+            
+            <?= $block->getChildHtml('form_additional_info') ?>
+            
+            <div class="actions-toolbar">
+                <div class="primary">
+                    <button type="submit" class="action submit primary" title="<?= $block->escapeHtmlAttr(__('Create an Account')) ?>" id="submit_button" <?php if ($viewModel && $viewModel->isOtpEnabled()): ?>disabled<?php endif; ?>><span><?= $block->escapeHtml(__('Create an Account')) ?></span></button>
+                </div>
+                <div class="secondary">
+                    <a class="action back" href="<?= $block->escapeUrl($block->getBackUrl()) ?>"><span><?= $block->escapeHtml(__('Back')) ?></span></a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/x-magento-init">
+{
+		"#form-validate": {
+			"validation": {
+				"rules": {
+					"phone_number": {
+						"required": true,
+						"validate-phoneStrict": true
+					}
+				},
+            "messages": {
+                "phone_number": {
+                    "required": "<?= $block->escapeJs(__('Please enter your phone number.')) ?>",
+                    "minlength": "<?= $block->escapeJs(__('Phone number must be at least %1 digits.', $block->getMinPhoneLength())) ?>",
+                    "maxlength": "<?= $block->escapeJs(__('Phone number must not exceed %1 digits.', $block->getMaxPhoneLength())) ?>"
+                }
+            }
+        }
+    },
+    ".field.password": {
+        "passwordStrengthIndicator": {
+            "formSelector": "#form-validate"
+        }
+    },
+    "*": {
+        "Magento_Customer/js/block-submit-on-send": {
+            "formId": "form-validate"
+        },
+        "phoneValidator": {
+            "allowedCountries": <?= json_encode($allowedCountries) ?>,
+            "preferredCountries": <?= json_encode($preferredCountries) ?>,
+            "defaultCountry": <?= json_encode($defaultCountry) ?>,
+            "utilsPath": "<?= $block->getViewFileUrl('MagoArab_WithoutEmail::js/utils.js') ?>",
+            "minLength": <?= $block->getMinPhoneLength() ?>,
+            "maxLength": <?= $block->getMaxPhoneLength() ?>
+        }
+    }
+}
+
+</script>
+<script>
+var otpCooldown = 0;
+var otpCooldownInterval;
+require([
+    'jquery',
+    'mage/url',
+    'mage/translate',
+    'Magento_Customer/js/model/customer',
+    'mage/validation',
+    'mage/cookies'
+], function($, url, $t, customer) {
+    'use strict';
+
+    $(document).ready(function() {
+        // Auto-generate email when phone number changes
+        $('#phone_number').on('input change blur', function() {
+            var phoneNumber = $(this).val();
+            if (phoneNumber) {
+                var domain = window.location.hostname;
+                var generatedEmail = phoneNumber + '@' + domain;
+                
+                // Create hidden email field if not exists
+                if ($('#hidden-email').length === 0) {
+                    $('<input>').attr({
+                        type: 'hidden',
+                        id: 'hidden-email',
+                        name: 'email',
+                        value: generatedEmail
+                    }).appendTo('#form-validate');
+                } else {
+                    $('#hidden-email').val(generatedEmail);
+                }
+            }
+        });
+
+        // Generate email immediately if phone already has value
+        if ($('#phone_number').val()) {
+            $('#phone_number').trigger('change');
+        }
+
+        // Override form submission
+        $('#form-validate').on('submit', function(e) {
+            // Make sure email is set before submission
+            var phoneNumber = $('#phone_number').val();
+            if (phoneNumber) {
+                var domain = window.location.hostname;
+                var generatedEmail = phoneNumber + '@' + domain;
+                
+                if ($('#hidden-email').length === 0) {
+                    $('<input>').attr({
+                        type: 'hidden',
+                        id: 'hidden-email',
+                        name: 'email',
+                        value: generatedEmail
+                    }).appendTo('#form-validate');
+                } else {
+                    $('#hidden-email').val(generatedEmail);
+                }
+            }
+            
+            // Allow form to submit normally
+            return true;
+        });
+
+        // Send OTP button click
+        $('#send_otp').on('click', function() {
+            var phoneNumber = $('#phone_number').val();
+            
+            if (!phoneNumber) {
+                alert($t('Please enter a valid phone number'));
+                return;
+            }
+            
+            // Intentar formatear el número usando intlTelInput si está disponible
+            var formattedNumber = phoneNumber;
+            try {
+                var iti = $('#phone_number').data('iti');
+                if (iti) {
+                    formattedNumber = iti.getNumber();
+                    if (!formattedNumber) {
+                        formattedNumber = phoneNumber;
+                    }
+                }
+            } catch (e) {
+                console.error("Error formatting phone:", e);
+            }
+            
+            // Use absolute path
+            var baseUrl = window.location.protocol + '//' + window.location.host;
+            var ajaxUrl = baseUrl + '/magoarab_withoutemail/otp/send';
+            
+            console.log("Sending OTP request to: " + ajaxUrl);
+            console.log("Phone number: " + formattedNumber);
+            
+            $.ajax({
+                url: ajaxUrl,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    phone_number: formattedNumber,
+                    form_key: $.mage.cookies.get('form_key')
+                },
+                beforeSend: function() {
+                    $('#send_otp').prop('disabled', true).text($t('Sending...'));
+                },
+                success: function(response) {
+                    console.log("OTP send response:", response);
+                    if (response.success) {
+                        $('#otp_section').show();
+                        $('#otp_verify_section').show();
+                        
+                        // Start cooldown period
+                        startOtpCooldown(60);
+                        
+                        // Store locally for backup
+                        try {
+                            sessionStorage.setItem('last_phone_otp', formattedNumber);
+                        } catch (e) {
+                            console.error("Error storing in session:", e);
+                        }
+                    } else {
+                        alert(response.message);
+                        $('#send_otp').prop('disabled', false).text($t('Get OTP via WhatsApp'));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error Status:", status);
+                    console.error("AJAX Error:", error);
+                    console.error("Response Text:", xhr.responseText);
+                    
+                    alert($t('An error occurred. Please try again.'));
+                    $('#send_otp').prop('disabled', false).text($t('Get OTP via WhatsApp'));
+                }
+            });
+        });
+		// Verify OTP button click
+        $('#verify_otp').on('click', function() {
+            var phoneNumber = $('#phone_number').val();
+            var otpCode = $('#otp_code').val();
+            
+            if (!otpCode) {
+                alert($t('Please enter the OTP code'));
+                return;
+            }
+            
+            // Intentar formatear el número usando intlTelInput si está disponible
+            var formattedNumber = phoneNumber;
+            try {
+                var iti = $('#phone_number').data('iti');
+                if (iti) {
+                    formattedNumber = iti.getNumber();
+                    if (!formattedNumber) {
+                        formattedNumber = phoneNumber;
+                    }
+                }
+            } catch (e) {
+                console.error("Error formatting phone:", e);
+            }
+            
+            // Use absolute path
+            var baseUrl = window.location.protocol + '//' + window.location.host;
+            var ajaxUrl = baseUrl + '/magoarab_withoutemail/otp/verify';
+            
+            console.log("Sending verification request to: " + ajaxUrl);
+            console.log("Phone: " + formattedNumber + ", OTP: " + otpCode);
+            
+            $.ajax({
+                url: ajaxUrl,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    phone_number: formattedNumber,
+                    otp_code: otpCode,
+                    form_key: $.mage.cookies.get('form_key')
+                },
+                beforeSend: function() {
+                    $('#verify_otp').prop('disabled', true).text($t('Verifying...'));
+                },
+                success: function(response) {
+                    console.log("Verification response:", response);
+                    if (response.success) {
+                        $('#verify_otp').text($t('Verified')).addClass('verified');
+                        $('#submit_button').prop('disabled', false);
+                        
+                        // Store verification status locally
+                        try {
+                            sessionStorage.setItem('otp_verified_' + formattedNumber, 'true');
+                        } catch (e) {
+                            console.error("Error storing in session:", e);
+                        }
+                    } else {
+                        alert(response.message);
+                        $('#verify_otp').prop('disabled', false).text($t('Verify OTP'));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error Status:", status);
+                    console.error("AJAX Error:", error);
+                    console.error("Response Text:", xhr.responseText);
+                    
+                    alert($t('An error occurred during verification. Please try again.'));
+                    $('#verify_otp').prop('disabled', false).text($t('Verify OTP'));
+                }
+            });
+        });
+
+        // Function to start cooldown period
+        function startOtpCooldown(seconds) {
+            otpCooldown = seconds;
+            
+            // Stop any previous timer
+            if (otpCooldownInterval) {
+                clearInterval(otpCooldownInterval);
+            }
+            
+            // Update button text
+            updateOtpButtonText();
+            
+            // Start countdown
+            otpCooldownInterval = setInterval(function() {
+                otpCooldown--;
+                updateOtpButtonText();
+                
+                if (otpCooldown <= 0) {
+                    clearInterval(otpCooldownInterval);
+                    $('#send_otp').prop('disabled', false).text($t('Resend OTP'));
+                }
+            }, 1000);
+        }
+
+        // Function to update button text
+        function updateOtpButtonText() {
+            if (otpCooldown > 0) {
+                $('#send_otp').prop('disabled', true).text($t('Resend OTP (%1)').replace('%1', otpCooldown));
+            }
+        }
+    });
+});
+</script>
+<?php if ($isHybridMode): ?>
+<script>
+require(['jquery'], function($) {
+    // Toggle between phone and email methods
+    $(document).ready(function() {
+        $('input[name="registration_method"]').on('change', function() {
+            if ($(this).val() === 'phone') {
+                $('#phone_field').show();
+                $('#email_field').hide();
+                
+                // Handle OTP elements if they exist
+                if ($('#otp_section').length) {
+                    $('#otp_section').hide();
+                    $('#otp_verify_section').hide();
+                    $('#send_otp').show();
+                }
+                
+                // Disable submit button if OTP is required
+                <?php if ($viewModel && $viewModel->isOtpEnabled()): ?>
+                $('#submit_button').prop('disabled', true);
+                <?php endif; ?>
+            } else {
+                $('#phone_field').hide();
+                $('#email_field').show();
+                
+                // Hide OTP elements if they exist
+                if ($('#otp_section').length) {
+                    $('#otp_section').hide();
+                    $('#otp_verify_section').hide();
+                    $('#send_otp').hide();
+                }
+                
+                // Enable submit button
+                $('#submit_button').prop('disabled', false);
+            }
+        });
+    });
+});
+</script>
+<?php endif; ?>
+
+<script>
+require([
+    'jquery',
+    'mage/mage',
+    'mage/validation',
+    'intlTelInput'
+], function($) {
+    'use strict';
+
+    // Initialize international telephone input
+    var input = document.querySelector("#phone_number");
+    if (input) {
+        try {
+            var iti = window.intlTelInput(input, {
+                initialCountry: "<?= $defaultCountry ?>",
+                preferredCountries: <?= json_encode($preferredCountries) ?>,
+                onlyCountries: <?= json_encode($allowedCountries) ?>,
+                separateDialCode: true,
+                autoHideDialCode: false,
+                nationalMode: true,
+                formatOnDisplay: false,
+                utilsScript: "<?= $block->getViewFileUrl('MagoArab_WithoutEmail::js/utils.js') ?>"
+            });
+            
+            // Store the iti instance for later use
+            $(input).data('iti', iti);
+            
+            // Add validation - more flexible approach
+			$("#form-validate").on('submit', function(e) {
+				// Skip validation if email method is selected in hybrid mode
+				if ($('input[name="registration_method"]:checked').val() === 'email') {
+					return true;
+				}
+				
+				// Clear any previous error messages
+				$(".phone-error-message").remove();
+                
+                var phoneNumber = input.value;
+                var formattedNumber = '';
+                
+                try {
+                    // Try to get formatted number
+                    formattedNumber = iti.getNumber();
+                    
+                    // If could not format or invalid, try manual formatting
+                    if (!formattedNumber || !iti.isValidNumber()) {
+                        var countryData = iti.getSelectedCountryData();
+                        var dialCode = countryData.dialCode || '';
+                        
+                        // Egyptian number format: 01xxxxxxxxx
+                        if (countryData.iso2 === 'eg' && phoneNumber.match(/^0[1][0-9]{9}$/)) {
+                            formattedNumber = '+2' + phoneNumber;
+                        }
+                        // Numbers starting with 0 (local format)
+                        else if (phoneNumber.startsWith('0')) {
+                            formattedNumber = '+' + dialCode + phoneNumber.substring(1);
+                        }
+                        // Numbers without international format
+                        else if (!phoneNumber.startsWith('+')) {
+                            formattedNumber = '+' + dialCode + phoneNumber;
+                        }
+                        // If already has international prefix
+                        else {
+                            formattedNumber = phoneNumber;
+                        }
+                    }
+                    
+                    // Save formatted number
+                    input.value = formattedNumber;
+                    
+                    // Generate email with clean phone number
+                    var domain = window.location.hostname;
+                    var cleanNumber = formattedNumber.replace(/\D/g, '');
+                    var generatedEmail = cleanNumber + '@' + domain;
+                    
+                    if ($('#hidden-email').length === 0) {
+                        $('<input>').attr({
+                            type: 'hidden',
+                            id: 'hidden-email',
+                            name: 'email',
+                            value: generatedEmail
+                        }).appendTo('#form-validate');
+                    } else {
+                        $('#hidden-email').val(generatedEmail);
+                    }
+                    
+                    // Remove any previous errors
+                    $(".phone-error-message").remove();
+                    
+                    // Only do a basic length check
+					// Perform more flexible validation
+					var digitsOnly = formattedNumber.replace(/\D/g, '');
+					var isValid = true;
+
+					// For international format, be more flexible
+					if (digitsOnly.length < 7 || digitsOnly.length > 15) {
+						isValid = false;
+						var errorMessage = (digitsOnly.length < 7) ? 
+							'Phone number is too short (minimum 7 digits)' : 
+							'Phone number is too long (maximum 15 digits)';
+						
+						$(".intl-tel-input").after('<div class="phone-error-message">' + errorMessage + '</div>');
+						e.preventDefault();
+						return false;
+					} 
+                    return true;
+                } catch (error) {
+                    console.error('Error formatting phone number:', error);
+                    // Allow form submission anyway
+                    return true;
+                }
+            });
+        } catch (error) {
+            console.error('Error initializing intlTelInput:', error);
+        }
+    }
+});
+// Add custom phone validation
+$.validator.addMethod(
+    'validate-phoneStrict',
+    function(value) {
+        // For more flexible validation, we'll use the intlTelInput
+        try {
+            var input = document.getElementById('phone_number');
+            var iti = $(input).data('iti');
+            
+            // If intlTelInput is available, use it for validation
+            if (iti) {
+                // Get only digits
+                var digits = value.replace(/\D/g, '');
+                
+                // Check if valid with intlTelInput (if available)
+                if (iti.isValidNumber()) {
+                    return true;
+                }
+                
+                // Fallback validation: check basic length
+                return digits.length >= 7 && digits.length <= 15;
+            }
+            
+            // If no intlTelInput, just do basic validation
+            var digits = value.replace(/\D/g, '');
+            return digits.length >= 7 && digits.length <= 15;
+        } catch (e) {
+            console.error("Error validating phone:", e);
+            // Always return true on errors to prevent blocking submission
+            return true;
+        }
+    },
+    $.mage.__('Please enter a valid phone number with country code.')
+);
+</script>

@@ -1,0 +1,43 @@
+<?php
+/** @var \Magento\Framework\View\Element\Template $block */
+// Get Config Helper from ObjectManager
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$configHelper = $objectManager->get(\MagoArab\WithoutEmail\Helper\Config::class);
+$isEnabled = $configHelper->isEnabled();
+if (!$isEnabled) return;
+
+$minLength = $configHelper->getMinPhoneLength();
+$maxLength = $configHelper->getMaxPhoneLength();
+
+// Get customer data
+$customerSession = $objectManager->get(\Magento\Customer\Model\Session::class);
+$phoneNumber = '';
+if ($customerSession->isLoggedIn()) {
+    $customer = $customerSession->getCustomer();
+    if ($customer && $customer->getId()) {
+        $phoneAttr = $customer->getCustomAttribute('phone_number');
+        if ($phoneAttr) {
+            $phoneNumber = $phoneAttr->getValue();
+        }
+    }
+}
+?>
+<script>
+require(['jquery', 'domReady!'], function($) {
+    // Add the phone field just before the first name
+    var firstNameField = $('.fieldset.info .field.firstname').first();
+    if (firstNameField.length) {
+        var phoneField = $('<div class="field phone required phone-field-highlight">' +
+            '<label class="label" for="phone_number"><span><?= __('Phone Number') ?></span></label>' +
+            '<div class="control">' +
+            '<input type="tel" name="phone_number" id="phone_number" value="<?= $phoneNumber ?>" ' +
+            'title="<?= __('Phone Number') ?>" ' +
+            'class="input-text" ' +
+            'data-validate="{required:true, \'validate-number\':true, minlength:<?= $minLength ?>, maxlength:<?= $maxLength ?>}">' +
+            '</div>' +
+            '</div>');
+        
+        phoneField.insertBefore(firstNameField);
+    }
+});
+</script>

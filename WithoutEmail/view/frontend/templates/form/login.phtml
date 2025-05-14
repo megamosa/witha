@@ -1,0 +1,255 @@
+<?php
+/** @var \Magento\Customer\Block\Form\Login $block */
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$configHelper = $objectManager->get(\MagoArab\WithoutEmail\Helper\Config::class);
+$isHybridMode = $configHelper->isHybridMode();
+
+// Get country information
+$directoryHelper = $objectManager->get(\Magento\Directory\Helper\Data::class);
+$storeManager = $objectManager->get(\Magento\Store\Model\StoreManagerInterface::class);
+$scopeConfig = $objectManager->get(\Magento\Framework\App\Config\ScopeConfigInterface::class);
+
+// Get allowed countries
+$allowedCountries = $directoryHelper->getCountryCollection()->getAllIds();
+
+// Get default country from store configuration
+$defaultCountry = $scopeConfig->getValue(
+    'general/country/default',
+    \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+    $storeManager->getStore()->getId()
+) ?: 'EG';
+
+// Define preferred countries with default first
+$preferredCountries = [$defaultCountry, 'US', 'GB', 'SA', 'AE'];
+?>
+<div class="block block-customer-login">
+    <div class="block-title">
+        <strong id="block-customer-login-heading" role="heading" aria-level="2"><?= $block->escapeHtml(__('Customer Login')) ?></strong>
+    </div>
+    <div class="block-content" aria-labelledby="block-customer-login-heading">
+        <form class="form form-login"
+              action="<?= $block->escapeUrl($block->getPostActionUrl()) ?>"
+              method="post"
+              id="login-form"
+              data-mage-init='{"validation":{}}'>
+            <?= $block->getBlockHtml('formkey') ?>
+            <fieldset class="fieldset login" data-hasrequired="<?= $block->escapeHtmlAttr(__('* Required Fields')) ?>">
+
+                <?php if ($isHybridMode): ?>
+                <div class="field choice login-method">
+                    <input type="radio" name="login_method" id="method_phone" value="phone" checked="checked" />
+                    <label for="method_phone"><?= $block->escapeHtml(__('Login with Phone Number')) ?></label>
+                    
+                    <input type="radio" name="login_method" id="method_email" value="email" style="margin-left: 15px;" />
+                    <label for="method_email"><?= $block->escapeHtml(__('Login with Email')) ?></label>
+                </div>
+                <?php endif; ?>
+				<div class="field phone required phone-field-highlight" id="phone_field">
+					<label class="label" for="phone"><span><?= $block->escapeHtml(__('Phone Number')) ?></span></label>
+					<div class="control">
+						<input name="login[username]" value="<?= $block->escapeHtmlAttr($block->getUsername()) ?>"
+							autocomplete="off" id="phone" type="tel" class="input-text phone-input"
+							title="<?= $block->escapeHtmlAttr(__('Phone Number')) ?>"
+							data-validate="{required:true}">
+					</div>
+				</div>
+                <?php if ($isHybridMode): ?>
+                <div class="field email required" id="email_field" style="display: none;">
+                    <label class="label" for="email"><span><?= $block->escapeHtml(__('Email Address')) ?></span></label>
+                    <div class="control">
+                        <input name="login[username]" value="<?= $block->escapeHtmlAttr($block->getUsername()) ?>"
+                               autocomplete="off" id="email" type="email" class="input-text email-input"
+                               title="<?= $block->escapeHtmlAttr(__('Email Address')) ?>"
+                               data-validate="{required:true, 'validate-email':true}">
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <div class="field password required">
+                    <label for="pass" class="label"><span><?= $block->escapeHtml(__('Password')) ?></span></label>
+                    <div class="control">
+                        <input name="login[password]" type="password" autocomplete="off" class="input-text" id="pass"
+                               title="<?= $block->escapeHtmlAttr(__('Password')) ?>"
+                               data-validate="{required:true}">
+                    </div>
+                </div>
+                <?= $block->getChildHtml('form_additional_info') ?>
+                <div class="actions-toolbar">
+                    <div class="primary"><button type="submit" class="action login primary" name="send" id="send2"><span><?= $block->escapeHtml(__('Sign In')) ?></span></button></div>
+                    <div class="secondary"><a class="action remind" href="<?= $block->escapeUrl($block->getForgotPasswordUrl()) ?>"><span><?= $block->escapeHtml(__('Forgot Your Password?')) ?></span></a></div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+<script>
+require(['jquery', 'mage/mage'], function($) {
+    $('#login-form').mage('validation', {});
+
+    <?php if ($isHybridMode): ?>
+    // Toggle between phone and email fields
+    $('input[name="login_method"]').on('change', function() {
+        if ($(this).val() === 'phone') {
+            $('#phone_field').show();
+            $('#email_field').hide();
+            $('.phone-input').prop('disabled', false);
+            $('.email-input').prop('disabled', true);
+        } else {
+            $('#phone_field').hide();
+            $('#email_field').show();
+            $('.phone-input').prop('disabled', true);
+            $('.email-input').prop('disabled', false);
+        }
+    });
+    <?php endif; ?>
+});
+</script>
+
+<script>
+require([
+    'jquery',
+    'mage/mage',
+    'mage/validation',
+    'intlTelInput'
+], function($) {
+    'use strict';
+
+    // Get allowed countries and default country
+    var allowedCountries = <?= json_encode($allowedCountries) ?>;
+    var preferredCountries = <?= json_encode($preferredCountries) ?>;
+    var defaultCountry = <?= json_encode($defaultCountry) ?>;
+    
+    // Initialize international telephone input
+    var input = document.querySelector("#phone");
+    if (input) {
+        var iti = window.intlTelInput(input, {
+            initialCountry: defaultCountry,
+            preferredCountries: preferredCountries,
+            onlyCountries: allowedCountries,
+            separateDialCode: true,
+            autoHideDialCode: false,
+            nationalMode: true, // Permitir formato nacional
+            formatOnDisplay: false, // No formatear automáticamente
+            utilsScript: "<?= $block->getViewFileUrl('MagoArab_WithoutEmail::js/utils.js') ?>"
+        });
+        
+        // Store the instance for later use
+        $(input).data('iti', iti);
+        
+        // Add validation with improved handling
+        $("#login-form").on('submit', function(e) {
+            // Si el valor está vacío o si se está usando email, no validamos
+            if (!input.value || ($('input[name="login_method"]:checked').val() === 'email')) {
+                return true;
+            }
+            
+            var phoneNumber = input.value;
+            var formattedNumber = '';
+            
+            try {
+                // Intentar obtener el número formateado con código de país
+                formattedNumber = iti.getNumber();
+                
+                // Si no se pudo formatear o es inválido, intentar formatear manualmente
+                if (!formattedNumber || !iti.isValidNumber()) {
+                    var countryData = iti.getSelectedCountryData();
+                    var dialCode = countryData.dialCode || '';
+                    
+                    // Número egipcio típico: 01xxxxxxxxx
+                    if (countryData.iso2 === 'eg' && phoneNumber.match(/^0[1][0-9]{9}$/)) {
+                        formattedNumber = '+2' + phoneNumber;
+                    }
+                    // Números que empiezan con 0 (formato local)
+                    else if (phoneNumber.startsWith('0')) {
+                        formattedNumber = '+' + dialCode + phoneNumber.substring(1);
+                    }
+                    // Números sin formato internacional
+                    else if (!phoneNumber.startsWith('+')) {
+                        formattedNumber = '+' + dialCode + phoneNumber;
+                    }
+                    // Si ya tiene prefijo internacional
+                    else {
+                        formattedNumber = phoneNumber;
+                    }
+                }
+                
+                // Guardar el número formateado
+                input.value = formattedNumber;
+                
+                // Eliminar errores previos
+                $(".phone-error-message").remove();
+                
+                // Verificar longitud básica antes de enviar
+                var digitsOnly = formattedNumber.replace(/\D/g, '');
+                if (digitsOnly.length < 7) {
+                    $(".intl-tel-input").after('<div class="phone-error-message">El número parece demasiado corto</div>');
+                    e.preventDefault();
+                    return false;
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Error al formatear número de teléfono:', error);
+                // Permitir el envío de todas formas para evitar bloquear al usuario
+                return true;
+            }
+        });
+    }
+});
+</script>
+<script>
+require([
+    'jquery',
+    'intlTelInput'
+], function($) {
+    'use strict';
+
+    $(document).ready(function() {
+        // Initialize international telephone input
+        var phoneInput = document.getElementById("phone");
+        if (phoneInput) {
+            var iti = window.intlTelInput(phoneInput, {
+                initialCountry: "EG",
+                preferredCountries: ["EG", "US", "GB", "SA", "AE"],
+                separateDialCode: true,
+                nationalMode: true,
+                utilsScript: "<?= $block->getViewFileUrl('MagoArab_WithoutEmail::js/utils.js') ?>"
+            });
+
+            // Add manual validation
+            $("#login-form").on('submit', function(e) {
+                var phoneValue = phoneInput.value;
+                if (phoneValue) {
+                    // Just in case, try to format the number
+                    try {
+                        var formattedNumber = iti.getNumber();
+                        if (formattedNumber) {
+                            phoneInput.value = formattedNumber;
+                        }
+                    } catch (error) {
+                        console.log("Error formatting phone number:", error);
+                    }
+                }
+            });
+        }
+
+        <?php if ($isHybridMode): ?>
+        // Toggle between phone and email fields
+        $('input[name="login_method"]').on('change', function() {
+            if ($(this).val() === 'phone') {
+                $('#phone_field').show();
+                $('#email_field').hide();
+                $('#phone').attr('name', 'login[username]');
+                $('#email').removeAttr('name');
+            } else {
+                $('#phone_field').hide();
+                $('#email_field').show();
+                $('#email').attr('name', 'login[username]');
+                $('#phone').removeAttr('name');
+            }
+        });
+        <?php endif; ?>
+    });
+});
+</script>

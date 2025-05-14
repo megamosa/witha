@@ -1,0 +1,52 @@
+<input class="input-text" type="tel" data-bind="
+    value: value,
+    valueUpdate: 'keyup',
+    hasFocus: focused,
+    attr: {
+        name: inputName,
+        placeholder: placeholder,
+        'aria-describedby': getDescriptionId(),
+        'aria-required': required,
+        'aria-invalid': error() ? true : 'false',
+        id: uid,
+        disabled: disabled
+    },
+    event: {
+        'change': function(data, event) {
+            // When phone changes, update the email field
+            var phoneNumber = event.target.value;
+            if (phoneNumber) {
+                var domain = window.location.hostname;
+                var email = phoneNumber + '@' + domain;
+                
+                // Find email field
+                var emailField = document.querySelector('input[name$=\\.email\\]');
+                if (emailField) {
+                    emailField.value = email;
+                    // Trigger change event
+                    var changeEvent = document.createEvent('HTMLEvents');
+                    changeEvent.initEvent('change', true, false);
+                    emailField.dispatchEvent(changeEvent);
+                }
+            }
+            return true;
+        },
+        'keyup': function(data, event) {
+            // Same handler for keyup
+            var phoneNumber = event.target.value;
+            if (phoneNumber) {
+                var domain = window.location.hostname;
+                var email = phoneNumber + '@' + domain;
+                
+                var emailField = document.querySelector('input[name$=\\.email\\]');
+                if (emailField) {
+                    emailField.value = email;
+                    var changeEvent = document.createEvent('HTMLEvents');
+                    changeEvent.initEvent('change', true, false);
+                    emailField.dispatchEvent(changeEvent);
+                }
+            }
+            return true;
+        }
+    }
+" />

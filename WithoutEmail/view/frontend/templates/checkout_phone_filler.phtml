@@ -1,0 +1,61 @@
+<?php
+/** @var \Magento\Framework\View\Element\Template $block */
+// Get Config Helper from ObjectManager
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$configHelper = $objectManager->get(\MagoArab\WithoutEmail\Helper\Config::class);
+$isEnabled = $configHelper->isEnabled();
+if (!$isEnabled) return;
+
+// Get customer data
+$customerSession = $objectManager->get(\Magento\Customer\Model\Session::class);
+$phoneNumber = '';
+if ($customerSession->isLoggedIn()) {
+    try {
+        $customerId = $customerSession->getCustomerId();
+        $customerRepository = $objectManager->get(\Magento\Customer\Api\CustomerRepositoryInterface::class);
+        $customer = $customerRepository->getById($customerId);
+        $phoneAttr = $customer->getCustomAttribute('phone_number');
+        if ($phoneAttr) {
+            $phoneNumber = $phoneAttr->getValue();
+        }
+    } catch (\Exception $e) {
+        // لوج الخطأ فقط وتجاهله
+    }
+}
+?>
+<?php if (!empty($phoneNumber)): ?>
+<script>
+require(['jquery', 'mage/url'], function($, urlBuilder) {
+    // استراتيجية 1: تنفيذ عند تحميل المستند
+    $(document).ready(function() {
+        fillPhoneNumber();
+    });
+    
+    // استراتيجية 2: مراقبة تحديثات DOM
+    $(document).on('contentUpdated', function() {
+        fillPhoneNumber();
+    });
+    
+    // استراتيجية 3: استدعاء بشكل دوري للتأكد من تنفيذ العملية
+    var attempts = 0;
+    var checkInterval = setInterval(function() {
+        if (fillPhoneNumber() || attempts > 20) {
+            clearInterval(checkInterval);
+        }
+        attempts++;
+    }, 500);
+    
+    function fillPhoneNumber() {
+        var $phoneInput = $('input[name="telephone"]');
+        
+        if ($phoneInput.length > 0) {
+            $phoneInput.val('<?= $phoneNumber ?>');
+            $phoneInput.trigger('change');
+            console.log('Phone number filled automatically');
+            return true;
+        }
+        return false;
+    }
+});
+</script>
+<?php endif; ?>

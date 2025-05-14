@@ -1,0 +1,39 @@
+<?php
+/**
+ * MagoArab_WithoutEmail extension
+ *
+ * @category  MagoArab
+ * @package   MagoArab_WithoutEmail
+ * @author    MagoArab
+ */
+
+/** 
+ * @var \Magento\Customer\Block\Form\Edit $block 
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+// Get Config Helper from ObjectManager
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$configHelper = $objectManager->get(\MagoArab\WithoutEmail\Helper\Config::class);
+$isEnabled = $configHelper->isEnabled();
+$minPhoneLength = $configHelper->getMinPhoneLength();
+$maxPhoneLength = $configHelper->getMaxPhoneLength();
+$customer = $block->getCustomer();
+$phoneNumber = '';
+if ($customer->getCustomAttribute('phone_number')) {
+    $phoneNumber = $customer->getCustomAttribute('phone_number')->getValue();
+}
+?>
+
+<?php /* استخدام النموذج الأصلي وإضافة حقل الهاتف فقط */ ?>
+<?php echo $block->getChildHtml('form_additional_info_customer'); ?>
+
+<?php /* إضافة حقل الهاتف مباشرة بعد البيانات الأصلية */ ?>
+<?php if ($isEnabled): ?>
+<div class="field phone required phone-field-highlight">
+    <label class="label" for="phone_number"><span><?= $escaper->escapeHtml(__('Phone Number')) ?></span></label>
+    <div class="control">
+        <input type="tel" name="phone_number" id="phone_number" value="<?= $escaper->escapeHtmlAttr($phoneNumber) ?>" title="<?= $escaper->escapeHtmlAttr(__('Phone Number')) ?>" class="input-text" data-validate="{required:true, 'validate-number':true, minlength:<?= $minPhoneLength ?>, maxlength:<?= $maxPhoneLength ?>}">
+    </div>
+</div>
+<?php endif; ?>

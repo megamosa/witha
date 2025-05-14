@@ -1,0 +1,22 @@
+<?php
+/** @var $block \Magento\Checkout\Block\Registration */
+?>
+<?php if ($block->getOrderId()): ?>
+    <div class="block block-customer-register">
+        <div class="block-title">
+            <strong id="block-customer-register-heading" role="heading" aria-level="2"><?= __('Create an Account') ?></strong>
+        </div>
+        <div class="block-content" aria-labelledby="block-customer-register-heading">
+            <p><?= __('You can track your order status by creating an account.') ?></p>
+            <p><strong><?= __('Phone number:') ?></strong> <?= $block->escapeHtml($block->getAccountData()['telephone'] ?? '') ?></p>
+            <form class="form create account" action="<?= $block->escapeUrl($block->getCreateAccountUrl()) ?>" method="post" id="form-validate" enctype="multipart/form-data" autocomplete="off">
+                <?= /* @noEscape */ $block->getChildHtml('form_fields') ?>
+                <div class="actions-toolbar">
+                    <div class="primary">
+                        <button type="submit" class="action submit primary" title="<?= $block->escapeHtmlAttr(__('Create an Account')) ?>"><span><?= __('Create an Account') ?></span></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+<?php endif; ?>

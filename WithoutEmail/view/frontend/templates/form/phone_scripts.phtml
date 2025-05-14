@@ -1,0 +1,27 @@
+<?php
+/**
+ * MagoArab WithoutEmail - Phone Scripts Template
+ */
+// Helper to get phone configuration
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$helperData = $objectManager->get(\MagoArab\WithoutEmail\Helper\Data::class);
+$isPhoneOnlyMode = $helperData->isPhoneOnlyMode();
+
+// Get phone validator config
+$config = [
+    'minLength' => $helperData->getMinPhoneLength(),
+    'maxLength' => $helperData->getMaxPhoneLength(),
+    'defaultCountry' => $helperData->getDefaultCountry(),
+    'preferredCountries' => $helperData->getPreferredCountries(),
+    'allowedCountries' => $helperData->getAllowedCountries(),
+    'utilsPath' => $block->getViewFileUrl('MagoArab_WithoutEmail/js/intl-tel-input/utils.js')
+];
+$phoneValidatorConfig = json_encode($config);
+?>
+<script type="text/x-magento-init">
+{
+    ".phone-input": {
+        "MagoArab_WithoutEmail/js/phone-validator": <?= /* @noEscape */ $phoneValidatorConfig ?>
+    }
+}
+</script>

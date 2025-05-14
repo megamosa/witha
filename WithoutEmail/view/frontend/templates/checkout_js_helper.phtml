@@ -1,0 +1,98 @@
+<script>
+require(['jquery', 'domReady!'], function($) {
+    'use strict';
+    
+    // تحديد وقت انتظار قبل محاولة التنفيذ
+    setTimeout(function() {
+        // وظيفة لإخفاء وتعطيل مكون البريد الإلكتروني
+        function hideAndDisableEmailComponent() {
+            // إخفاء العنصر باستخدام CSS
+            $('div.field[data-bind*="customer-email-fieldset"], #customer-email-fieldset').css({
+                'display': 'none',
+                'visibility': 'hidden',
+                'height': '0',
+                'overflow': 'hidden',
+                'margin': '0',
+                'padding': '0',
+                'position': 'absolute'
+            });
+            
+            // إضافة CSS الإضافي للتأكد من الإخفاء الكامل
+            if ($('#email-hide-style').length === 0) {
+                $('head').append(
+                    '<style id="email-hide-style">' +
+                    '#customer-email-fieldset, div[data-bind*="customer-email-fieldset"] { display: none !important; visibility: hidden !important; height: 0 !important; overflow: hidden !important; }' +
+                    '</style>'
+                );
+            }
+            
+            return true;
+        }
+        
+        // وظيفة لضبط توليد البريد الإلكتروني من رقم الهاتف
+        function setupPhoneToEmailGeneration() {
+            // العثور على حقل الهاتف
+            var phoneField = $('input[name="telephone"]');
+            if (phoneField.length) {
+                // إزالة أي أحداث سابقة لتجنب التكرار
+                phoneField.off('input.emailgen change.emailgen blur.emailgen');
+                
+                // إضافة مستمع جديد
+                phoneField.on('input.emailgen change.emailgen blur.emailgen', function() {
+                    var phoneNumber = $(this).val();
+                    if (phoneNumber) {
+                        var domain = window.location.hostname;
+                        var email = phoneNumber + '@' + domain;
+                        
+                        // العثور على حقل البريد الإلكتروني وتحديثه
+                        var emailField = $('#customer-email');
+                        if (emailField.length) {
+                            emailField.val(email).trigger('change');
+                            console.log('Email updated to: ' + email);
+                        }
+                    }
+                });
+                
+                // تنفيذ المستمع إذا كان رقم الهاتف موجودًا بالفعل
+                if (phoneField.val()) {
+                    phoneField.trigger('change.emailgen');
+                }
+                
+                return true;
+            }
+            return false;
+        }
+        
+        // إعداد مراقب DOM لتتبع التغييرات
+        function setupMutationObserver() {
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                        // تنفيذ وظائف الإخفاء والتوليد
+                        hideAndDisableEmailComponent();
+                        setupPhoneToEmailGeneration();
+                    }
+                });
+            });
+            
+            // بدء المراقبة على جميع DOM
+            observer.observe(document.body, { childList: true, subtree: true });
+            console.log('Mutation observer setup complete');
+        }
+        
+        // تنفيذ الوظائف الرئيسية
+        hideAndDisableEmailComponent();
+        setupPhoneToEmailGeneration();
+        setupMutationObserver();
+        
+        // إعادة تنفيذ الإخفاء بشكل دوري للتأكد من عدم ظهور الحقل
+        setInterval(hideAndDisableEmailComponent, 1000);
+        
+        // إضافة مستمع لتحديث البريد عند تحديث المحتوى
+        $(document).on('contentUpdated', function() {
+            hideAndDisableEmailComponent();
+            setupPhoneToEmailGeneration();
+        });
+    }, 500);
+});
+</script>

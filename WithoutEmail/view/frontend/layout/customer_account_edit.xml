@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <block class="Magento\Framework\View\Element\Template" name="magoarab_withoutemail_phone_field_js" template="MagoArab_WithoutEmail::phone_field_js.phtml" after="-" ifconfig="magoarab_withoutemail/general/enabled"/>
+        </referenceContainer>
+		    <referenceBlock name="customer_edit">
+            <action method="setTemplate">
+                <argument name="template" xsi:type="string">MagoArab_WithoutEmail::form/edit.phtml</argument>
+            </action>
+        </referenceBlock>
+    </body>
+</page>

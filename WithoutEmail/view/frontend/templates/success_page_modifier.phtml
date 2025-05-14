@@ -1,0 +1,55 @@
+<?php
+// Get Config Helper from ObjectManager
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$configHelper = $objectManager->get(\MagoArab\WithoutEmail\Helper\Config::class);
+if (!$configHelper->isEnabled()) return;
+?>
+<script>
+require(['jquery', 'domReady!'], function($) {
+    'use strict';
+    
+    $(function() {
+        // Replace all email-related text
+        function replaceEmailText() {
+            // Replace "Email Address" text
+            $('body').find('*:contains("Email Address")').each(function() {
+                if ($(this).children().length === 0) {
+                    var text = $(this).text();
+                    $(this).text(text.replace('Email Address:', 'Phone number:').replace('Email Address', 'Phone number'));
+                }
+            });
+            
+            // Replace email pattern with phone
+            $('body').find('*').each(function() {
+                if ($(this).children().length === 0) {
+                    var text = $(this).text();
+                    var emailPattern = /([0-9]+)@[a-zA-Z0-9.-]+/g;
+                    var match = emailPattern.exec(text);
+                    
+                    if (match && match[1]) {
+                        var newText = text.replace(match[0], match[1]);
+                        $(this).text(newText);
+                    }
+                }
+            });
+        }
+        
+        // Run replacement immediately
+        replaceEmailText();
+        
+        // Run again after delay to catch dynamic content
+        setTimeout(replaceEmailText, 500);
+        setTimeout(replaceEmailText, 1000);
+        
+        // Observer for dynamic content
+        var observer = new MutationObserver(function(mutations) {
+            replaceEmailText();
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+});
+</script>
